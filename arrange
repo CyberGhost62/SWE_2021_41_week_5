@@ -1,0 +1,42 @@
+#!/bin/bash
+
+# Directory where files are located
+directory="./files"
+
+# Check if the directory exists
+if [ ! -d "$directory" ]; then
+    echo "Error: Directory $directory does not exist."
+    exit 1
+fi
+
+# Create folders for each unique starting letter
+create_folders() {
+    local files=("$@")
+    local folders=()
+    for file in "${files[@]}"; do
+        first_letter=$(basename "$file" | cut -c1 | tr '[:upper:]' '[:lower:]')
+        folders+=("$first_letter")
+    done
+    folders=($(echo "${folders[@]}" | tr ' ' '\n' | sort -u))
+    for folder in "${folders[@]}"; do
+        if [ ! -d "$directory/$folder" ]; then
+            mkdir "$directory/$folder"
+        fi
+    done
+}
+
+# Organize files into respective folders
+organize_files() {
+    local files=("$@")
+    for file in "${files[@]}"; do
+        first_letter=$(basename "$file" | cut -c1 | tr '[:upper:]' '[:lower:]')
+        mv "$file" "$directory/$first_letter/"
+    done
+}
+
+# Main script
+cd "$directory" || exit
+files=(*)
+create_folders "${files[@]}"
+organize_files "${files[@]}"
+
